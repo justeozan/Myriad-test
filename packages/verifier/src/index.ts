@@ -19,7 +19,7 @@ export class Verifier {
 
     // Check required fields
     const hasContext = Array.isArray(credential['@context']) &&
-      credential['@context'].includes('https://www.w3.org/2018/credentials/v1');
+      credential['@context'].some((ctx) => ctx === 'https://www.w3.org/2018/credentials/v1');
     checks.push({
       check: 'context',
       passed: hasContext,
@@ -83,7 +83,7 @@ export class Verifier {
     const checks: VerificationCheck[] = [];
 
     const hasContext = Array.isArray(presentation['@context']) &&
-      presentation['@context'].includes('https://www.w3.org/2018/credentials/v1');
+      presentation['@context'].some((ctx) => ctx === 'https://www.w3.org/2018/credentials/v1');
     checks.push({
       check: 'context',
       passed: hasContext,

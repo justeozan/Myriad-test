@@ -12,5 +12,5 @@ export interface CryptoProvider {
     data: Uint8Array,
     signature: Uint8Array,
     publicKey: Uint8Array
-  ) : Promise<boolean>;
+  ): Promise<boolean>;
 }
