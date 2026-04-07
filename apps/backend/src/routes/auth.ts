@@ -23,6 +23,7 @@ export default async function authRoutes(fastify: FastifyInstance): Promise<void
   });
 
   fastify.post<{ Body: { did: string; challenge: string; signature: string } }>('/verify', {
+    config: { rateLimit: { max: 10, timeWindow: '1 minute' } },
     schema: {
       body: {
         type: 'object',

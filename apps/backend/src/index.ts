@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import rateLimitPlugin from '@fastify/rate-limit';
 import corsPlugin from './plugins/cors.js';
 import healthRoutes from './routes/health.js';
 import didRoutes from './routes/did.js';
@@ -16,6 +17,11 @@ const server = Fastify({
 });
 
 async function start(): Promise<void> {
+  await server.register(rateLimitPlugin, {
+    global: false,
+    max: 100,
+    timeWindow: '1 minute',
+  });
   await server.register(corsPlugin);
   await server.register(healthRoutes);
   await server.register(didRoutes, { prefix: '/api/did' });
@@ -35,4 +41,3 @@ async function start(): Promise<void> {
 }
 
 start();
-

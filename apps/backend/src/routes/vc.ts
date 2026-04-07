@@ -56,6 +56,7 @@ export default async function vcRoutes(fastify: FastifyInstance): Promise<void> 
   });
 
   fastify.post<{ Body: VerifyBody }>('/verify', {
+    config: { rateLimit: { max: 20, timeWindow: '1 minute' } },
     schema: {
       body: {
         type: 'object',
