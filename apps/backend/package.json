@@ -1,0 +1,27 @@
+{
+  "name": "@myriad/backend",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "tsc --noEmit",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "fastify": "^5.7.2",
+    "@fastify/cors": "^9.0.0",
+    "fastify-plugin": "^5.0.0",
+    "@myriad/wallet": "*",
+    "@myriad/shared": "*",
+    "@myriad/issuer": "*",
+    "@myriad/verifier": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "tsx": "^4.7.0",
+    "@types/node": "^20.11.0"
+  }
+}
