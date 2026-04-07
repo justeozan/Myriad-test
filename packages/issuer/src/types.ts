@@ -13,9 +13,16 @@ export interface CredentialRequest {
   expiresIn?: number;
 }
 
+export interface SignedCredentialRequest extends CredentialRequest {
+  issuerDid: DIDString;
+  issuerPrivateKey: Uint8Array;
+  issuerPublicKey: Uint8Array;
+}
+
 export interface IssuedCredential {
   credential: VerifiableCredential;
   jwt?: string;
 }
 
 export type { VerifiableCredential };
+

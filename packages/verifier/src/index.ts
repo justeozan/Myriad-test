@@ -1,4 +1,5 @@
-import { resolveDID } from '@myriad/wallet';
+import { resolveDID, verifySignature } from '@myriad/wallet';
+import { base58btc } from 'multiformats/bases/base58';
 import type {
   VerificationResult,
   VerificationCheck,
@@ -6,6 +7,7 @@ import type {
   VerifiableCredential,
   VerifiablePresentation,
 } from './types.js';
+import type { VerificationMethod } from '@myriad/wallet';
 
 export class Verifier {
   private config: VerifierConfig;
@@ -17,7 +19,6 @@ export class Verifier {
   async verifyCredential(credential: VerifiableCredential): Promise<VerificationResult> {
     const checks: VerificationCheck[] = [];
 
-    // Check required fields
     const hasContext = Array.isArray(credential['@context']) &&
       credential['@context'].some((ctx) => ctx === 'https://www.w3.org/2018/credentials/v1');
     checks.push({
@@ -41,7 +42,6 @@ export class Verifier {
       message: hasIssuer ? 'Issuer present' : 'Missing issuer',
     });
 
-    // Check expiry
     const notExpired = !credential.expirationDate ||
       new Date(credential.expirationDate) > new Date();
     checks.push({
@@ -50,7 +50,6 @@ export class Verifier {
       message: notExpired ? 'Not expired' : 'Credential has expired',
     });
 
-    // Check trusted issuers if configured
     if (this.config.trustedIssuers && this.config.trustedIssuers.length > 0) {
       const issuerDid = typeof credential.issuer === 'string'
         ? credential.issuer
@@ -63,7 +62,6 @@ export class Verifier {
       });
     }
 
-    // Resolve issuer DID
     const issuerDid = typeof credential.issuer === 'string'
       ? credential.issuer
       : credential.issuer.id;
@@ -75,8 +73,65 @@ export class Verifier {
       message: didResolved ? 'Issuer DID resolved' : `Failed to resolve issuer DID: ${resolution.didResolutionMetadata.error}`,
     });
 
+    if (credential.proof && resolution.didDocument) {
+      const proofCheck = await this.verifyProof(credential, resolution.didDocument.verificationMethod);
+      checks.push(proofCheck);
+    } else if (!credential.proof) {
+      checks.push({
+        check: 'proof',
+        passed: false,
+        message: 'No proof found in credential',
+      });
+    }
+
     const verified = checks.every((c) => c.passed);
     return { verified, checks };
+  }
+
+  private async verifyProof(
+    credential: VerifiableCredential,
+    verificationMethods: VerificationMethod[]
+  ): Promise<VerificationCheck> {
+    const proof = credential.proof;
+    if (!proof) {
+      return { check: 'proof', passed: false, message: 'No proof' };
+    }
+
+    try {
+      const vm = verificationMethods.find(
+        (m) => m.id === proof.verificationMethod
+      ) ?? verificationMethods[0];
+
+      if (!vm?.publicKeyMultibase) {
+        return { check: 'proof', passed: false, message: 'No publicKeyMultibase in verification method' };
+      }
+
+      const decoded = base58btc.decode(vm.publicKeyMultibase);
+      const publicKeyBytes = decoded.slice(2);
+
+      const { proof: _proof, ...credentialBody } = credential;
+      const sortedKeys = Object.keys(credentialBody).sort() as (keyof typeof credentialBody)[];
+      const canonical: Record<string, unknown> = {};
+      for (const key of sortedKeys) {
+        canonical[key] = credentialBody[key as keyof typeof credentialBody];
+      }
+
+      const encoded = new TextEncoder().encode(JSON.stringify(canonical));
+      const signatureBytes = Buffer.from(proof.proofValue, 'base64url');
+
+      const valid = await verifySignature(encoded, signatureBytes, publicKeyBytes);
+      return {
+        check: 'proof',
+        passed: valid,
+        message: valid ? 'Signature verified' : 'Signature verification failed',
+      };
+    } catch (error) {
+      return {
+        check: 'proof',
+        passed: false,
+        message: `Proof verification error: ${error instanceof Error ? error.message : 'unknown'}`,
+      };
+    }
   }
 
   async verifyPresentation(presentation: VerifiablePresentation): Promise<VerificationResult> {

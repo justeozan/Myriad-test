@@ -29,7 +29,7 @@ export default function HomePage() {
           }}
         >
           <span>🔒</span>
-          <span>Post-Quantum Ready · Phase 1</span>
+          <span>Post-Quantum Ready · Phase 2</span>
         </div>
 
         <h1
@@ -61,6 +61,41 @@ export default function HomePage() {
           Designed for a post-quantum world — your identity, your keys, your control.
         </p>
       </header>
+
+      <nav style={{
+        display: 'flex',
+        gap: '0.75rem',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+      }}>
+        {[
+          { href: '/wallet', label: '🔑 Wallet', desc: 'Manage your identity' },
+          { href: '/issue', label: '📜 Issue', desc: 'Create credentials' },
+          { href: '/verify', label: '🔍 Verify', desc: 'Check credentials' },
+        ].map((link) => (
+          <a
+            key={link.href}
+            href={link.href}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              background: '#12121a',
+              border: '1px solid rgba(129,140,248,0.3)',
+              borderRadius: '12px',
+              padding: '1rem 1.5rem',
+              textDecoration: 'none',
+              minWidth: '140px',
+              transition: 'border-color 0.2s',
+            }}
+          >
+            <span style={{ fontSize: '1rem', fontWeight: 600, color: '#818cf8', marginBottom: '0.25rem' }}>
+              {link.label}
+            </span>
+            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>{link.desc}</span>
+          </a>
+        ))}
+      </nav>
 
       <section
         style={{
@@ -145,8 +180,8 @@ export default function HomePage() {
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {[
-            { phase: 'Phase 1', title: 'Foundation', status: 'active', desc: 'Monorepo setup, DID generation, key management, Fastify API.' },
-            { phase: 'Phase 2', title: 'Core Identity', status: 'upcoming', desc: 'VC issuance & verification, DID resolver, JWT credential flows.' },
+            { phase: 'Phase 1', title: 'Foundation', status: 'done', desc: 'Monorepo setup, DID generation, key management, Fastify API.' },
+            { phase: 'Phase 2', title: 'Core Identity', status: 'active', desc: 'VC issuance & verification, DID resolver, JWT credential flows.' },
             { phase: 'Phase 3', title: 'Post-Quantum', status: 'upcoming', desc: 'Dilithium3 integration, hybrid key schemes, migration tooling.' },
             { phase: 'Phase 4', title: 'Ecosystem', status: 'upcoming', desc: 'Wallet UI, selective disclosure, ZK proofs, mobile SDK.' },
           ].map((item) => (
@@ -201,7 +236,7 @@ export default function HomePage() {
           fontSize: '0.8125rem',
         }}
       >
-        Myriad Identity · Phase 1 · Built with Fastify, Next.js, Ed25519 &amp; TypeScript
+        Myriad Identity · Phase 2 · Built with Fastify, Next.js, Ed25519 &amp; TypeScript
       </footer>
     </main>
   );
