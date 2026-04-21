@@ -137,3 +137,16 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Turborepo
+.turbo/
+
+# Local env files
+*.local
+
+# macOS
+.DS_Store
+
+# Build outputs
+build/
+dist/
